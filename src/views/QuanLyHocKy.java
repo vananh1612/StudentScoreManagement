@@ -214,9 +214,17 @@ public class QuanLyHocKy extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				int row = table.getSelectedRow();
-				txtId.setText(String.valueOf(model.getValueAt(row, 0)));
-				txtNamHoc.setText((String) model.getValueAt(row, 1));
-				txtTenHocKy.setText((String) model.getValueAt(row, 2));
+				int id = (int) model.getValueAt(row, 0);
+				txtId.setText(String.valueOf(id));
+				try {
+					HocKy hocKy = hocKyDao.findOne(id);	
+					txtNamHoc.setText(String.valueOf(hocKy.getNamHoc()));
+					txtTenHocKy.setText(String.valueOf(hocKy.getTen()));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				
+
 			}
 		});
 	}

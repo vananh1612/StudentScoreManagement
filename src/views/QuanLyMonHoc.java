@@ -19,6 +19,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import daos.MonHocDao;
+import models.HocKy;
 import models.MonHoc;
 import models.ThongBao;
 import views.components.JButtonCustom;
@@ -219,9 +220,17 @@ public class QuanLyMonHoc extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				int row = table.getSelectedRow();
-				txtId.setText(String.valueOf(model.getValueAt(row, 0)));
-				txtTen.setText((String) model.getValueAt(row, 1));
-				txtTenGiangVien.setText((String) model.getValueAt(row, 2));
+				int id = (int) model.getValueAt(row, 0);
+				txtId.setText(String.valueOf(id));
+				try {
+					MonHoc monHoc = monHocDao.findOne(id);	
+					txtTen.setText(String.valueOf(monHoc.getTen()));
+					txtTenGiangVien.setText(String.valueOf(monHoc.getTenGiangVien()));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				
+
 			}
 		});
 	}

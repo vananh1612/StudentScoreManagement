@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.Vector;
 
 public class QuanLyDiem extends JFrame {
-	String column[] = { "Id", "Id_sinhvien", "Id_monhoc", "Chuyên cần", "Bài tập", "Giữa kỳ", "Cuối kỳ", "Id_hocky",
-			"Tính điểm", "Điểm trung bình", "Xếp loại " };
+	String column[] = { "Id", "Tên sinh viên", "Tên môn học", "Chuyên cần", "Bài tập", "Giữa kỳ", "Cuối kỳ",
+			"Tên học kỳ", "Tính điểm", "Điểm trung bình", "Xếp loại " };
 	private DefaultTableModel modelDiem = new DefaultTableModel(column, 0);
 	private DiemDao diemDao = new DiemDao();
 	ArrayList<SinhVien> sinhviensFindAll = new ArrayList<>();
@@ -67,14 +67,13 @@ public class QuanLyDiem extends JFrame {
 			}
 
 			diems = diemDao.findAll();
+			// xoá hết dữ liệu của table
 			modelDiem.setRowCount(0);
 			for (Diem diem : diems) {
 
-				Object[] row = { diem.getId(), diem.getSinhVien().getId(), diem.getMonHoc().getId(),
-
-						diem.getChuyenCan(), diem.getBaiTap(), diem.getGiuaKy(), diem.getCuoiKy(),
-						diem.getHocKy().getId(), diem.getTinhDiem().getLoai(), diem.getDiemTrungBinh(),
-						diem.getXepLoai() };
+				Object[] row = { diem.getId(), diem.getSinhVien().getTen(), diem.getMonHoc().getTen(), diem.getChuyenCan(),
+						diem.getBaiTap(), diem.getGiuaKy(), diem.getCuoiKy(), diem.getHocKy().getTen(),
+						diem.getTinhDiem().getLoai() == 1 ? "Có điểm bài tập" : "Không có điểm bài tập" , diem.getDiemTrungBinh(), diem.getXepLoai() };
 				modelDiem.addRow(row);
 			}
 			sinhvienComboboxModel = new DefaultComboBoxModel<>(sinhViens);
@@ -97,9 +96,9 @@ public class QuanLyDiem extends JFrame {
 			diems = diemDao.search(search);
 			modelDiem.setRowCount(0);
 			for (Diem diem : diems) {
-				Object[] row = { diem.getId(), diem.getSinhVien().getId(), diem.getMonHoc().getId(),
-						diem.getChuyenCan(), diem.getBaiTap(), diem.getGiuaKy(), diem.getCuoiKy(),
-						diem.getHocKy().getId(), diem.getTinhDiem(), diem.getDiemTrungBinh(), diem.getXepLoai() };
+				Object[] row = { diem.getId(), diem.getSinhVien().getTen(), diem.getMonHoc().getTen(), diem.getChuyenCan(),
+						diem.getBaiTap(), diem.getGiuaKy(), diem.getCuoiKy(), diem.getHocKy().getTen(),
+						diem.getTinhDiem().getLoai() == 1 ? "Có điểm bài tập" : "Không có điểm bài tập" , diem.getDiemTrungBinh(), diem.getXepLoai() };
 				modelDiem.addRow(row);
 			}
 		} catch (Exception e) {
@@ -225,7 +224,7 @@ public class QuanLyDiem extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Diem diem = new Diem();
-				String id = txtId.getText();
+				
 				SinhVien sinhVien = (SinhVien) comboBoxSinhVien.getSelectedItem();
 				MonHoc monHoc = (MonHoc) comboBoxMonHoc.getSelectedItem();
 				float chuyenCan = Float.parseFloat(txtChuyenCan.getText());
@@ -249,7 +248,6 @@ public class QuanLyDiem extends JFrame {
 				if (hocKy.getId() == 0) {
 					thongBao("Chưa nhập id_hocky cần thêm");
 				}
-
 				else {
 					diem.setSinhVien(sinhVien);
 					diem.setMonHoc(monHoc);
@@ -261,7 +259,6 @@ public class QuanLyDiem extends JFrame {
 					diem.setTinhDiem(tinhDiem);
 					diem.tinhDiemTrungBinh();
 					diem.tinhXepLoai();
-					System.out.println(diem);
 
 					try {
 						ThongBao thongBao = diemDao.create(diem);
@@ -285,7 +282,7 @@ public class QuanLyDiem extends JFrame {
 				float giuaKy = Float.parseFloat(txtGiuaKy.getText());
 				float cuoiKy = Float.parseFloat(txtCuoiKy.getText());
 				HocKy hocKy = (HocKy) comboBoxHocKy.getSelectedItem();
-			    TinhDiem tinhDiem = (TinhDiem) comboboxTinhdiem.getSelectedItem();
+				TinhDiem tinhDiem = (TinhDiem) comboboxTinhdiem.getSelectedItem();
 				float baiTap = 0;
 				if (tinhDiem.getLoai() == 1) {
 					baiTap = Float.parseFloat(txtBaiTap.getText());
@@ -315,7 +312,7 @@ public class QuanLyDiem extends JFrame {
 				if (hocKy.getId() == 0) {
 					thongBao("Chưa nhập id_hocky cần sửa");
 				}
-				
+
 				else {
 					diem.setSinhVien(sinhVien);
 					diem.setMonHoc(monHoc);
@@ -327,7 +324,7 @@ public class QuanLyDiem extends JFrame {
 					diem.setTinhDiem(tinhDiem);
 					diem.tinhDiemTrungBinh();
 					diem.tinhXepLoai();
-					System.out.println(diem);
+	
 
 					try {
 						ThongBao thongBao = diemDao.update(Integer.parseInt(id), diem);
@@ -391,36 +388,30 @@ public class QuanLyDiem extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				int row = table.getSelectedRow();
-				txtId.setText(String.valueOf(model.getValueAt(row, 0)));
-				int idSinhVien = (int) model.getValueAt(row, 1);
-				SinhVien sinhVien = getSinhVienById(idSinhVien);
-				sinhvienComboboxModel.setSelectedItem(sinhVien);
-				comboBoxSinhVien.setModel(sinhvienComboboxModel);
-				int idMonHoc = (int) model.getValueAt(row, 2);
-				MonHoc monHoc = getMonHocById(idMonHoc);
-				monhocComboboxModel.setSelectedItem(monHoc);
-				comboBoxMonHoc.setModel(monhocComboboxModel);
-				txtChuyenCan.setText(model.getValueAt(row, 3) + "");
-				String a = String.valueOf(model.getValueAt(row, 4));
-				txtBaiTap.setText(a);
-				String b = String.valueOf(model.getValueAt(row, 5));
-				txtGiuaKy.setText(b);
-				String c = String.valueOf(model.getValueAt(row, 6));
-				txtCuoiKy.setText(c);
-				int idHocKy = (int) model.getValueAt(row, 7);
-				HocKy hocKy = getHocKyById(idHocKy);
-				hockyComboboxModel.setSelectedItem(hocKy);
-				comboBoxHocKy.setModel(hockyComboboxModel);
-				int loai = (int) model.getValueAt(row, 8);
-				TinhDiem tinhDiem = getTinhDiemByLoai(loai);
-				ComboBoxModel model2 = comboboxTinhdiem.getModel();
-				model2.setSelectedItem(tinhDiem);
-				comboboxTinhdiem.setModel(model2);
-
-				String o = String.valueOf(model.getValueAt(row, 9));
-				txtDiemTrungBinh.setText(o);
-				String f = String.valueOf(model.getValueAt(row, 10));
-				txtXepLoai.setText(f);
+				int id = (int) model.getValueAt(row, 0);
+				txtId.setText(String.valueOf(id));
+				try {
+					Diem diem = diemDao.findOne(id);				
+					sinhvienComboboxModel.setSelectedItem(diem.getSinhVien());
+					comboBoxSinhVien.setModel(sinhvienComboboxModel);
+					monhocComboboxModel.setSelectedItem(diem.getMonHoc());
+					comboBoxMonHoc.setModel(monhocComboboxModel);
+					txtChuyenCan.setText(String.valueOf(diem.getCuoiKy()));
+					txtBaiTap.setText(String.valueOf(diem.getBaiTap()) );
+					txtGiuaKy.setText(String.valueOf(diem.getGiuaKy()) );
+					txtCuoiKy.setText(String.valueOf(diem.getChuyenCan()) );
+					txtDiemTrungBinh.setText(String.valueOf(diem.getDiemTrungBinh()) );
+					txtXepLoai.setText(String.valueOf(diem.getXepLoai()) );
+					hockyComboboxModel.setSelectedItem(diem.getHocKy());
+					comboBoxHocKy.setModel(hockyComboboxModel);
+					TinhDiem tinhDiem = getTinhDiemByLoai(diem.getTinhDiem().getLoai());
+					ComboBoxModel model2 = comboboxTinhdiem.getModel();
+					model2.setSelectedItem(tinhDiem);
+					comboboxTinhdiem.setModel(model2);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				
 
 			}
 		});
@@ -484,7 +475,7 @@ public class QuanLyDiem extends JFrame {
 		return null;
 
 	}
-	
+
 	public static void main(String[] args) {
 
 		QuanLyDiem quanLyDiem = new QuanLyDiem();

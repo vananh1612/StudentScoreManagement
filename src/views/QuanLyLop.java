@@ -213,8 +213,16 @@ public class QuanLyLop extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				int row = table.getSelectedRow();
-				txtId.setText(String.valueOf(model.getValueAt(row, 0)));
-				txtTen.setText((String) model.getValueAt(row, 1));
+				int id = (int) model.getValueAt(row, 0);
+				txtId.setText(String.valueOf(id));
+				try {
+					Lop lop = lopHocDao.findOne(id);	
+					txtTen.setText(String.valueOf(lop.getTen()));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				
+
 			}
 		});
 	}

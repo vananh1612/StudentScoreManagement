@@ -7,9 +7,11 @@ import javax.swing.event.AncestorListener;
 import javax.swing.table.DefaultTableModel;
 
 import daos.SinhVienDao;
+import models.Diem;
 import models.Lop;
 import models.SinhVien;
 import models.ThongBao;
+import models.TinhDiem;
 import views.components.JButtonCustom;
 import views.components.JComboBoxCustom;
 import views.components.JTextFieldCustom;
@@ -28,7 +30,7 @@ import java.util.List;
 import java.util.Vector;
 
 public class QuanLySinhVien extends JFrame {
-	String column[] = { "Mã sinh viên", "Họ tên sinh viên ", "Giới tính ", "Ngày sinh", "Địa chỉ", "Sđt", "Id_lớp" };
+	String column[] = { "Mã sinh viên", "Họ tên sinh viên ", "Giới tính ", "Ngày sinh", "Địa chỉ", "Sđt", "Lớp" };
 	private DefaultTableModel modelSinhVien = new DefaultTableModel(column, 0);
 	private SinhVienDao sinhVienDao = new SinhVienDao();
 	ArrayList<Lop> lopsFindAll = new ArrayList<>();
@@ -46,7 +48,7 @@ public class QuanLySinhVien extends JFrame {
 			modelSinhVien.setRowCount(0);
 			for (SinhVien sinhVien : sinhViens) {
 				Object[] row = { sinhVien.getId(), sinhVien.getTen(), getGoiTinh(sinhVien.getGioiTinh()),
-						sinhVien.getNgaySinh(), sinhVien.getDiaChi(), sinhVien.getSdt(), sinhVien.getLop().getId() };
+						sinhVien.getNgaySinh(), sinhVien.getDiaChi(), sinhVien.getSdt(), sinhVien.getLop() };
 				modelSinhVien.addRow(row);
 			}
 			lopComboboxModel = new DefaultComboBoxModel<>(lops);
@@ -257,17 +259,23 @@ public class QuanLySinhVien extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				int row = table.getSelectedRow();
-				txtMaSV.setText(String.valueOf(model.getValueAt(row, 0)));
-				txtHoTen.setText((String) model.getValueAt(row, 1));
-				cbGioiTinh.setSelectedItem(model.getValueAt(row, 2));
-				txtNgaySinh.setText((String) model.getValueAt(row, 3));
-				txtDiaChi.setText((String) model.getValueAt(row, 4));
-				txtSDT.setText((String) model.getValueAt(row, 5));
-				int idLop = (int) model.getValueAt(row, 6);
-				Lop lop = getLopById(idLop);
-				lopComboboxModel.setSelectedItem(lop);
-				comboBoxLop.setModel(lopComboboxModel);
-
+				int id = (int) model.getValueAt(row, 0);
+				txtMaSV.setText(String.valueOf(id));
+				try {
+					SinhVien sinhVien = sinhVienDao.findOne(id);									
+					txtHoTen.setText(String.valueOf(sinhVien.getTen()));
+//					cbGioiTinh.setAction(String);
+					cbGioiTinh.setSelectedIndex(sinhVien.getGioiTinh());
+					txtNgaySinh.setText(String.valueOf(sinhVien.getNgaySinh()) );
+					txtDiaChi.setText(String.valueOf(sinhVien.getDiaChi()) );
+					txtSDT.setText(String.valueOf(sinhVien.getSdt()) );
+					lopComboboxModel.setSelectedItem(sinhVien.getLop());
+					comboBoxLop.setModel(lopComboboxModel);
+					
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				
 			}
 		});
 		this.getDataToModel();

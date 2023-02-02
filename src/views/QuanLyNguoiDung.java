@@ -220,10 +220,18 @@ public class QuanLyNguoiDung extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				int row = table.getSelectedRow();
-				txtId.setText(String.valueOf(model.getValueAt(row, 0)));
-				txtTen.setText((String) model.getValueAt(row, 1));
-				txtEmail.setText((String) model.getValueAt(row, 2));
-				txtMatKhau.setText((String) model.getValueAt(row, 3));
+				int id = (int) model.getValueAt(row, 0);
+				txtId.setText(String.valueOf(id));
+				try {
+					NguoiDung nguoiDung = nguoiDungDao.findOne(id);	
+					txtTen.setText(String.valueOf(nguoiDung.getTen()));
+					txtEmail.setText(String.valueOf(nguoiDung.getEmail()));
+					txtMatKhau.setText(String.valueOf(nguoiDung.getMatKhau()));
+
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				
 
 			}
 		});

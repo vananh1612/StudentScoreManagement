@@ -3,6 +3,7 @@ package daos;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import models.Diem;
@@ -30,40 +31,35 @@ public class DiemDao implements DaoInterface<Diem> {
 	public String querySearch = "SELECT * FROM " + tableName + " WHERE `ten` LIKE %?%";
 	public String queryFindOneByHocKy = "SELECT * FROM " + tableName + " WHERE `id_hocky` = ?";
 	public String queryFindByUserId = "SELECT * FROM " + tableName + " WHERE `id_sinhvien` = ?";
+	public String queryFindDiemBySinhVienAndHocKyAndMonHoc = "SELECT * FROM " + tableName
+			+ " WHERE `id_sinhvien` = ? AND `id_hocky` = ? AND `id_monhoc` = ? ";
 	public Connection connection = ConnectDatabase.connection;
 
 	public int findUserbyId(int id) throws Exception {
-		System.out.println(id);
 		int id1 = 0;
 		try {
 			PreparedStatement preparedStatement = connection.prepareStatement(queryFindByUserId);
 			preparedStatement.setInt(1, id);
 			ResultSet resultSet = preparedStatement.executeQuery();
-			System.out.println(resultSet.getRow());
 			if (resultSet.next()) {
-				System.out.println(resultSet);
 				HocKy Hocky = hocKyDao.findOne(resultSet.getInt("id_hocky"));
-				System.out.println(Hocky.getId());
+
 				id1 = Hocky.getId();
-				System.out.println(Hocky.getId());
 			}
 		} catch (Exception e) {
 			System.out.println(e);
 		}
 
-		System.out.println(id1);
 		return id1;
 	}
 
 	@Override
 	public ThongBao create(Diem duLieu) throws Exception {
-		System.out.println(duLieu.getSinhVien().getId());
 
-		int id = this.findUserbyId(duLieu.getSinhVien().getId());
-		int id2 = duLieu.getHocKy().getId();
-		if (id == id2) {
-			return new ThongBao("Thêm thất bại", false);
+		if (this.findDiemBySinhVienAndHocKyAndMonHoc(duLieu.getSinhVien().getId(), duLieu.getHocKy().getId(), duLieu.getMonHoc().getId()) != null) {
+			return new ThongBao("Thêm thất bại do sinh viên đã có điểm trước đó", false);
 		}
+
 		try {
 			PreparedStatement preparedStatement = connection.prepareStatement(queryCreate);
 			preparedStatement.setInt(1, duLieu.getId());
@@ -88,6 +84,14 @@ public class DiemDao implements DaoInterface<Diem> {
 
 	@Override
 	public ThongBao update(int id, Diem duLieu) throws Exception {
+		Diem diem = this.findOne(id);
+		if(diem == null) {
+			return new ThongBao("Không tìm thấy dữ liệu để cập nhật!", false);
+		}
+		Diem diemCheck = this.findDiemBySinhVienAndHocKyAndMonHoc(duLieu.getSinhVien().getId(), duLieu.getHocKy().getId(), duLieu.getMonHoc().getId());
+		if ( diemCheck != null && diemCheck.getId() != id ) {
+			return new ThongBao("Thêm thất bại do sinh viên đã có điểm trước đó", false);
+		}
 		try {
 			PreparedStatement preparedStatement = connection.prepareStatement(queryUpdate);
 			preparedStatement.setInt(1, duLieu.getSinhVien().getId());
@@ -149,7 +153,6 @@ public class DiemDao implements DaoInterface<Diem> {
 				diem.setTinhDiem(new TinhDiem(resultSet.getInt("tinhdiem"), ""));
 				diem.setDiemTrungBinh(resultSet.getFloat("diemtrungbinh"));
 				diem.setXepLoai(resultSet.getString("xeploai"));
-				System.out.println(diem);
 				return diem;
 			}
 		} catch (Exception e) {
@@ -210,7 +213,7 @@ public class DiemDao implements DaoInterface<Diem> {
 				Diem diem = new Diem();
 				// gán giá trị cho đối tượng môn học
 				diem.setId(resultSet.getInt("id"));
-				// gán giá trị cho đối tượng môn học
+				// gán giá trị cho đối tượng môn học 
 				diem.setSinhVien(this.sinhVienDao.findOne(resultSet.getInt("id_sinhvien")));
 				diem.setMonHoc(this.monHocDao.findOne(resultSet.getInt("id_monhoc")));
 				diem.setChuyenCan(resultSet.getFloat("chuyencan"));
@@ -301,10 +304,42 @@ public class DiemDao implements DaoInterface<Diem> {
 		}
 		return null;
 	}
-	
+
 	public Diem findDiemBySinhVienAndHocKyAndMonHoc(int idSinhVien, int idHocKy, int idMonHoc) {
-		// em vieets cai ni ddi  e cos bieest vieet moo
-		 String queryFindDiemBySinhVienAndHocKyAndMonHoc = "SELECT * FROM " + tableName + " WHERE `id_hocky` = ?";
+
+		try {
+			// tạo câu lệnh truy vấn sql và thực thi bằng preparedStatement
+			// (PreparedStatement)
+			// PreparedStatement là một lớp trong java.sql, nó được sử dụng để thực thi các
+			// câu lệnh SQL có tham số.
+			PreparedStatement preparedStatement = connection.prepareStatement(queryFindDiemBySinhVienAndHocKyAndMonHoc);
+			// truyền tham số vào câu lệnh sql bằng phương thức set của preparedStatement
+			// thay dấu ? bằng id
+			preparedStatement.setInt(1, idSinhVien);
+			preparedStatement.setInt(2, idHocKy);
+			preparedStatement.setInt(3, idMonHoc);
+			// thực thi câu lệnh sql và trả về kết qu
+			ResultSet resultSet = preparedStatement.executeQuery();
+			// nếu kết quả trả về có dòng thì tạo đối tượng lớp và trả về
+			if (resultSet.next()) {
+				Diem diem = new Diem();
+				diem.setId(resultSet.getInt("id"));
+				diem.setSinhVien(this.sinhVienDao.findOne(resultSet.getInt("id_sinhvien")));
+				diem.setMonHoc(this.monHocDao.findOne(resultSet.getInt("id_monhoc")));
+				diem.setChuyenCan(resultSet.getFloat("chuyencan"));
+				diem.setBaiTap(resultSet.getFloat("baitap"));
+				diem.setGiuaKy(resultSet.getFloat("giuaky"));
+				diem.setCuoiKy(resultSet.getFloat("cuoiky"));
+				diem.setHocKy(this.hocKyDao.findOne(resultSet.getInt("id_hocky")));
+				diem.setTinhDiem(new TinhDiem(resultSet.getInt("tinhdiem"), ""));
+				diem.setDiemTrungBinh(resultSet.getFloat("diemtrungbinh"));
+				diem.setXepLoai(resultSet.getString("xeploai"));
+				return diem;
+			}
+		} catch (Exception e) {
+			return null;
+		}
+		return null;
 	}
 
 }
