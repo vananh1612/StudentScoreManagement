@@ -54,10 +54,11 @@ public class NguoiDungDao implements DaoInterface<NguoiDung> {
             preparedStatement.setString(2, duLieu.getEmail());
             preparedStatement.setString(3, duLieu.getMatKhau());
             preparedStatement.setString(4, duLieu.getVaiTro());
-            preparedStatement.setInt(4, id);
+            preparedStatement.setInt(5, id);
             preparedStatement.executeUpdate();
             return new ThongBao("Cập nhật thành công", true);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ThongBao("Cập nhật thất bại", false);
         }
 
@@ -216,5 +217,40 @@ public class NguoiDungDao implements DaoInterface<NguoiDung> {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public NguoiDung findOneBy(String name, String value) {
+        String queryFindOneBy = "SELECT * FROM " + tableName + " WHERE " + "`" + name + "`" + " = ?";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(queryFindOneBy);
+            preparedStatement.setString(1, value);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                NguoiDung nguoiDung = new NguoiDung();
+                nguoiDung.setId(resultSet.getInt("id"));
+                nguoiDung.setTen(resultSet.getString("ten"));
+                nguoiDung.setEmail(resultSet.getString("email"));
+                nguoiDung.setMatKhau(resultSet.getString("matkhau"));
+                return nguoiDung;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return null;
+    }
+
+    public ThongBao updatePassword(NguoiDung nguoiDung) throws Exception {
+        String queryUpdatePassword = "UPDATE " + tableName + " SET `matkhau` = ? WHERE `id` = ?";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(queryUpdatePassword);
+            preparedStatement.setString(1, nguoiDung.getMatKhau());
+            preparedStatement.setInt(2, nguoiDung.getId());
+            preparedStatement.executeUpdate();
+            return new ThongBao("Đổi mật khẩu thành công", true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ThongBao("Đổi mật khẩu thất bại", false);
+        }
     }
 }

@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DiemDao implements DaoInterface<Diem> {
     private final SinhVienDao sinhVienDao = new SinhVienDao();
@@ -133,18 +134,7 @@ public class DiemDao implements DaoInterface<Diem> {
             ResultSet resultSet = preparedStatement.executeQuery();
             // nếu kết quả trả về có dòng thì tạo đối tượng lớp và trả về
             if (resultSet.next()) {
-                Diem diem = new Diem();
-                diem.setId(resultSet.getInt("id"));
-                diem.setSinhVien(this.sinhVienDao.findOne(resultSet.getInt("id_sinhvien")));
-                diem.setMonHoc(this.monHocDao.findOne(resultSet.getInt("id_monhoc")));
-                diem.setChuyenCan(resultSet.getFloat("chuyencan"));
-                diem.setBaiTap(resultSet.getFloat("baitap"));
-                diem.setGiuaKy(resultSet.getFloat("giuaky"));
-                diem.setCuoiKy(resultSet.getFloat("cuoiky"));
-                diem.setHocKy(this.hocKyDao.findOne(resultSet.getInt("id_hocky")));
-                diem.setTinhDiem(new TinhDiem(resultSet.getInt("tinhdiem"), ""));
-                diem.setDiemTrungBinh(resultSet.getFloat("diemtrungbinh"));
-                diem.setXepLoai(resultSet.getString("xeploai"));
+                Diem diem = getDiemFromResultSet(resultSet);
                 return diem;
             }
         } catch (Exception e) {
@@ -202,23 +192,7 @@ public class DiemDao implements DaoInterface<Diem> {
             // tiếp theo và false nếu không còn dòng nào
             while (resultSet.next()) {
                 // tạo đối tượng môn học
-                Diem diem = new Diem();
-                // gán giá trị cho đối tượng môn học
-                diem.setId(resultSet.getInt("id"));
-                // gán giá trị cho đối tượng môn học
-                diem.setSinhVien(this.sinhVienDao.findOne(resultSet.getInt("id_sinhvien")));
-                diem.setMonHoc(this.monHocDao.findOne(resultSet.getInt("id_monhoc")));
-                diem.setChuyenCan(resultSet.getFloat("chuyencan"));
-                diem.setBaiTap(resultSet.getFloat("baitap"));
-                diem.setGiuaKy(resultSet.getFloat("giuaky"));
-                diem.setCuoiKy(resultSet.getFloat("cuoiky"));
-                diem.setHocKy(this.hocKyDao.findOne(resultSet.getInt("id_hocky")));
-                diem.setTinhDiem(new TinhDiem(resultSet.getInt("tinhdiem"), ""));
-                diem.setDiemTrungBinh(resultSet.getFloat("diemtrungbinh"));
-                diem.setXepLoai(resultSet.getString("xeploai"));
-
-                // thêm đối tượng môn học vào mảng môn học
-
+                Diem diem = getDiemFromResultSet(resultSet);
                 diems.add(diem);
             }
             return diems;
@@ -241,19 +215,7 @@ public class DiemDao implements DaoInterface<Diem> {
             ResultSet resultSet = preparedStatement.executeQuery();
             ArrayList<Diem> diems = new ArrayList<>();
             while (resultSet.next()) {
-                Diem diem = new Diem();
-                diem.setId(resultSet.getInt("id"));
-                diem.setSinhVien(this.sinhVienDao.findOne(resultSet.getInt("id_sinhvien")));
-                diem.setMonHoc(this.monHocDao.findOne(resultSet.getInt("id_monhoc")));
-                diem.setChuyenCan(resultSet.getFloat("chuyencan"));
-                diem.setBaiTap(resultSet.getFloat("baitap"));
-                diem.setGiuaKy(resultSet.getFloat("giuaky"));
-                diem.setCuoiKy(resultSet.getFloat("cuoiky"));
-                diem.setHocKy(this.hocKyDao.findOne(resultSet.getInt("id_hocky")));
-                diem.setTinhDiem(new TinhDiem(resultSet.getInt("tinhdiem"), ""));
-                diem.setDiemTrungBinh(resultSet.getFloat("diemtrungbinh"));
-                diem.setXepLoai(resultSet.getString("xeploai"));
-
+                Diem diem = getDiemFromResultSet(resultSet);
                 diems.add(diem);
             }
             return diems;
@@ -265,30 +227,11 @@ public class DiemDao implements DaoInterface<Diem> {
 
     public Diem findByHocKy(int id_hocky) throws Exception {
         try {
-            // tạo câu lệnh truy vấn sql và thực thi bằng preparedStatement
-            // (PreparedStatement)
-            // PreparedStatement là một lớp trong java.sql, nó được sử dụng để thực thi các
-            // câu lệnh SQL có tham số.
             PreparedStatement preparedStatement = connection.prepareStatement(queryFindOneByHocKy);
-            // truyền tham số vào câu lệnh sql bằng phương thức set của preparedStatement
-            // thay dấu ? bằng id
             preparedStatement.setInt(1, id_hocky);
-            // thực thi câu lệnh sql và trả về kết qu
             ResultSet resultSet = preparedStatement.executeQuery();
-            // nếu kết quả trả về có dòng thì tạo đối tượng lớp và trả về
             if (resultSet.next()) {
-                Diem diem = new Diem();
-                diem.setId(resultSet.getInt("id"));
-                diem.setSinhVien(this.sinhVienDao.findOne(resultSet.getInt("id_sinhvien")));
-                diem.setMonHoc(this.monHocDao.findOne(resultSet.getInt("id_monhoc")));
-                diem.setChuyenCan(resultSet.getFloat("chuyencan"));
-                diem.setBaiTap(resultSet.getFloat("baitap"));
-                diem.setGiuaKy(resultSet.getFloat("giuaky"));
-                diem.setCuoiKy(resultSet.getFloat("cuoiky"));
-                diem.setHocKy(this.hocKyDao.findOne(resultSet.getInt("id_hocky")));
-                diem.setTinhDiem(new TinhDiem(resultSet.getInt("tinhdiem"), ""));
-                diem.setDiemTrungBinh(resultSet.getFloat("diemtrungbinh"));
-                diem.setXepLoai(resultSet.getString("xeploai"));
+                Diem diem = getDiemFromResultSet(resultSet);
                 return diem;
             }
         } catch (Exception e) {
@@ -314,24 +257,58 @@ public class DiemDao implements DaoInterface<Diem> {
             ResultSet resultSet = preparedStatement.executeQuery();
             // nếu kết quả trả về có dòng thì tạo đối tượng lớp và trả về
             if (resultSet.next()) {
-                Diem diem = new Diem();
-                diem.setId(resultSet.getInt("id"));
-                diem.setSinhVien(this.sinhVienDao.findOne(resultSet.getInt("id_sinhvien")));
-                diem.setMonHoc(this.monHocDao.findOne(resultSet.getInt("id_monhoc")));
-                diem.setChuyenCan(resultSet.getFloat("chuyencan"));
-                diem.setBaiTap(resultSet.getFloat("baitap"));
-                diem.setGiuaKy(resultSet.getFloat("giuaky"));
-                diem.setCuoiKy(resultSet.getFloat("cuoiky"));
-                diem.setHocKy(this.hocKyDao.findOne(resultSet.getInt("id_hocky")));
-                diem.setTinhDiem(new TinhDiem(resultSet.getInt("tinhdiem"), ""));
-                diem.setDiemTrungBinh(resultSet.getFloat("diemtrungbinh"));
-                diem.setXepLoai(resultSet.getString("xeploai"));
+                Diem diem = getDiemFromResultSet(resultSet);
                 return diem;
             }
         } catch (Exception e) {
             return null;
         }
         return null;
+    }
+
+    //get all diem by MonHoc
+    public List<Diem> findAllDiemByMonHoc(int idMonHoc) {
+        try {
+            // tạo câu lệnh truy vấn sql và thực thi bằng preparedStatement
+            // (PreparedStatement)
+            // PreparedStatement là một lớp trong java.sql, nó được sử dụng để thực thi các
+            // câu lệnh SQL có tham số.
+            String queryFindAllDiemByMonHoc = "SELECT * FROM diem WHERE id_monhoc = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(queryFindAllDiemByMonHoc);
+            // truyền tham số vào câu lệnh sql bằng phương thức set của preparedStatement
+            // thay dấu ? bằng id
+            preparedStatement.setInt(1, idMonHoc);
+            // thực thi câu lệnh sql và trả về kết qu
+            ResultSet resultSet = preparedStatement.executeQuery();
+            // nếu kết quả trả về có dòng thì tạo đối tượng lớp và trả về
+            List<Diem> listDiem = new ArrayList<>();
+            while (resultSet.next()) {
+                Diem diem = getDiemFromResultSet(resultSet);
+                listDiem.add(diem);
+
+            }
+            return listDiem;
+        } catch (Exception e) {
+
+        }
+        return null;
+    }
+
+    public Diem getDiemFromResultSet(ResultSet resultSet) throws Exception {
+
+        Diem diem = new Diem();
+        diem.setId(resultSet.getInt("id"));
+        diem.setSinhVien(this.sinhVienDao.findOne(resultSet.getInt("id_sinhvien")));
+        diem.setMonHoc(this.monHocDao.findOne(resultSet.getInt("id_monhoc")));
+        diem.setChuyenCan(resultSet.getFloat("chuyencan"));
+        diem.setBaiTap(resultSet.getFloat("baitap"));
+        diem.setGiuaKy(resultSet.getFloat("giuaky"));
+        diem.setCuoiKy(resultSet.getFloat("cuoiky"));
+        diem.setHocKy(this.hocKyDao.findOne(resultSet.getInt("id_hocky")));
+        diem.setTinhDiem(new TinhDiem(resultSet.getInt("tinhdiem"), ""));
+        diem.setDiemTrungBinh(resultSet.getFloat("diemtrungbinh"));
+        diem.setXepLoai(resultSet.getString("xeploai"));
+        return diem;
     }
 
 }

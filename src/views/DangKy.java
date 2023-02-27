@@ -3,6 +3,7 @@ package views;
 import daos.NguoiDungDao;
 import models.NguoiDung;
 import models.ThongBao;
+import views.components.JPasswordFieldCustom;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,45 +14,45 @@ public class DangKy extends JFrame {
     private final NguoiDungDao nguoiDungDao = new NguoiDungDao();
 
     public DangKy() {
-        setSize(400, 250);
+        setSize(400, 530);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JLabel titleLabel = new JLabel("Đăng ký", SwingConstants.CENTER);
         add(titleLabel, BorderLayout.NORTH);
         // Tạo panel chứa form
         JPanel formPanel = new JPanel();
-        formPanel.setLayout(new GridLayout(4, 2));
+        formPanel.setLayout(new GridLayout(0, 1));
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         JLabel emailLabel = new JLabel("Email:");
-        JTextField txtEmail = new JTextField();
+        JTextFieldCustom txtEmail = new JTextFieldCustom();
         formPanel.add(emailLabel);
         formPanel.add(txtEmail);
 
         JLabel passwordLabel = new JLabel("Mật khẩu:");
-        JPasswordField txtMatKhau = new JPasswordField();
+        JPasswordFieldCustom txtMatKhau = new JPasswordFieldCustom();
         formPanel.add(passwordLabel);
         formPanel.add(txtMatKhau);
 
         JLabel confirmPasswordLabel = new JLabel("Xác nhận mật khẩu:");
-        JPasswordField txtMatKhauXacNhan = new JPasswordField();
+        JPasswordFieldCustom txtMatKhauXacNhan = new JPasswordFieldCustom();
         formPanel.add(confirmPasswordLabel);
         formPanel.add(txtMatKhauXacNhan);
 
         JLabel nameLabel = new JLabel("Họ tên:");
-        JTextField txtTen = new JTextField();
+        JTextFieldCustom txtTen = new JTextFieldCustom();
         formPanel.add(nameLabel);
         formPanel.add(txtTen);
 
         // Tạo panel chứa button
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout());
-        JButton registerButton = new JButton("Đăng ký");
-        JButton backButton = new JButton("Quay lại");
+        buttonPanel.setLayout(new GridLayout(1, 1,8,8));
+        JButtonCustom registerButton = new JButtonCustom("Đăng ký");
+        JButtonCustom backButton = new JButtonCustom("Quay lại");
         buttonPanel.add(registerButton);
         buttonPanel.add(backButton);
-
+        formPanel.add(new JLabel(""));
+        formPanel.add(buttonPanel);
         // Add vào frame
         add(formPanel, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
         setLocationRelativeTo(null);
         setVisible(true);
         registerButton.addActionListener(new ActionListener() {
@@ -128,7 +129,7 @@ public class DangKy extends JFrame {
         return true;
     }
 
-//	public static void main(String[] args) {
-//		new DangKy();
-//	}
+	public static void main(String[] args) {
+		new DangKy();
+	}
 }
